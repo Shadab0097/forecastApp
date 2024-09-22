@@ -11,6 +11,9 @@ project overview
 
 This project is a simple React-based weather application that allows users to search for city-specific weather and view a 5-day forecast. The application uses two weather APIs to fetch current weather and forecast data.
 
+create this app useing  - npm create vite@latestto 
+to start the server - npm run dev
+
 Features
 City Search: Users can type the name of a city, and matching cities are displayed as options in a dropdown.
 Current Weather Display: The application shows the current temperature, weather conditions, wind speed, and an associated weather icon.

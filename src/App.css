@@ -29,6 +29,7 @@
   z-index: 10;
   max-height: 200px;
   overflow-y: auto;
+  list-style-type: none;
 }
 
 .dropdown-item {

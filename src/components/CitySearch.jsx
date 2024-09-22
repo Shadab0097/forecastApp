@@ -3,29 +3,25 @@ import { useState } from "react"
 import Forecast from "./Forecast";
 
 const CitySearch = () => {
-  // const [searchCity , setSearchCity] = useState()
   const [query, setQuery] = useState('delhi'); // To store user input
   const [filteredOptions, setFilteredOptions] = useState([]); // Store filtered dropdown options
   const [showDropdown, setShowDropdown] = useState(false); // To control dropdown visibility
   const [weatherData, setWeatherData] = useState();
   const [isCelsius, setIsCelsius] = useState(true); // State for temperature unit
+  const WeatherapiKey = import.meta.env.VITE_API_KEY_WEATHERAPI;
 
   useEffect(() => {
     const lastSearch = localStorage.getItem('lastSearchWeather');
-    if (lastSearch) {
-      setQuery(lastSearch); // Set the last searched city as the initial search value
-    }
+    if (!lastSearch) return;
+    setQuery(lastSearch); // Set the last searched city as the initial search value
+
   }, []);
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      try {
-        if (!query) return
-        fetchSearchCityWeather()
-        localStorage.setItem('lastSearchWeather', query);
-      } catch (err) {
-        console.log(err)
-      }
+      if (!query) return
+      fetchSearchCityWeather()
+      localStorage.setItem('lastSearchWeather', query);
 
     }, 1000);
 
@@ -33,20 +29,28 @@ const CitySearch = () => {
       clearTimeout(timer)
     }
   }, [query])
-  //  const city_name = query
-  //  const API_key = 'c2bc90986b89c535eeb27ac28fe23685'
-
   const fetchSearchCityWeather = async () => {
-    const data = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${query}&APPID=e0009158c56d3316825e5e2f8660c458`)
-    const response = await data.json()
-    console.log(response)
-    setWeatherData(response)
+    try {
+      const data = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${query}&APPID=${WeatherapiKey}`)
+      const response = await data.json()
+      if (data.ok) {
+        console.log(data);
+        setWeatherData(response);
+        localStorage.setItem('lastSearchWeather', query); // Save query only if fetch is successful
+      } else {
+        localStorage.clear()
+      }
+    } catch (err) {
+      console.error('Error fetching weather data:', err.message);
+
+    }
+    // setWeatherData(response)
   };
   if (!weatherData) return
   // console.log(weatherData)
 
 
-  const options = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia']; // Example options
+  const options = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'Kolakata', 'Delhi', 'Gurgaon', 'Noida'];
 
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -106,19 +110,22 @@ const CitySearch = () => {
         )}
       </div>
       <div className="weather-widget">
-        <div className="weather-content">
-          <div className="city-name">{name}</div>
-          <div className="temp-condition">
-            <div className="temperature">{temperature}°{isCelsius ? 'C' : 'F'}</div>
-            <div className="condition">{weather[0]?.description}</div>
+        {!query ? <p>City not Found</p> :
+          <div className="weather-content">
+
+            <div className="city-name">{name}</div>
+            <div className="temp-condition">
+              <div className="temperature">{temperature}°{isCelsius ? 'C' : 'F'}</div>
+              <div className="condition">{weather[0]?.description}</div>
+            </div>
+            <div className="weather-icon">
+              <img src={iconUrl} alt={weather[0]?.description} /> <span>{'Wind Speed:'}{weatherData?.wind?.speed}</span>
+            </div>
+            <button onClick={toggleTemperatureUnit}>
+              Switch to °{isCelsius ? 'F' : 'C'}
+            </button>
           </div>
-          <div className="weather-icon">
-            <img src={iconUrl} alt={weather[0]?.description} /> <span>{'Wind Speed:'}{weatherData?.wind?.speed}</span>
-          </div>
-          <button onClick={toggleTemperatureUnit}>
-            Switch to °{isCelsius ? 'F' : 'C'}
-          </button>
-        </div>
+        }
       </div>
       <h1 className="forecast-title">Daily Forecast</h1>
       <div className="big-container">

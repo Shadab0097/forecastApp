@@ -7,15 +7,11 @@ import WeatherIcon from "./WeatherIcon";
 function Forecast({ city }) {
     const [forecast, setForecast] = useState()
     const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const ForecastapiKey = import.meta.env.VITE_API_KEY_FORECASTAPI;
     useEffect(() => {
         let timer = setTimeout(() => {
-            try {
-                if (!city) return
-                getForecast()
-
-            } catch (err) {
-                console.log(err)
-            }
+            if (!city) return
+            getForecast()
 
         }, 1000);
 
@@ -25,9 +21,13 @@ function Forecast({ city }) {
     }, [city])
 
     const getForecast = async () => {
-        const data = await fetch(`https://api.weatherbit.io/v2.0/forecast/daily?city=${city},&key=c0254820927e43dba2e179ecd98f056f`)
-        const responnse = await data.json()
-        setForecast(responnse)
+        try {
+            const data = await fetch(`https://api.weatherbit.io/v2.0/forecast/daily?city=${city},&key=${ForecastapiKey}`)
+            const responnse = await data.json()
+            setForecast(responnse)
+        } catch (err) {
+            console.log(err.message)
+        }
     }
     const fiveForecasts = forecast?.data?.slice(0, 5)
     if (!fiveForecasts) return
